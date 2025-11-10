@@ -1,27 +1,44 @@
-javascript
 require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const admin = require('firebase-admin');
 const axios = require('axios');
 const session = require('express-session');
+const rateLimit = require('express-rate-limit');
+const helmet = require('helmet');
+const cors = require('cors');
 
-// Initialize app FIRST
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Basic middleware
-app.use(express.static(path.join(__dirname, 'public')));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// ====================
+// SECURITY & MIDDLEWARE SETUP
+// ====================
 
-// Session
-app.use(session({
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: false,
-    cookie: { secure: false, maxAge: 24 * 60 * 60 * 1000 }
-;
+// Security headers
+app.use(helmet());
+
+// CORS configuration
+app.use(cors({
+    origin: process.env.BASE_URL || 'http://localhost:3000',
+    credentials: true
+}));
+
+// Trust proxy
+if (process.env.NODE_ENV === 'production') {
+    app.set('trust proxy', 1);
+}
+
+// Rate limiting
+const generalLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 100,
+    message: { success: false, error: 'Too many requests' }
+});
+app.use(generalLimiter);
+
+// Continue with ALL your existing code...
+// KEEP ALL YOUR ROUTES, FEATURES, VALIDATION, ETC.
 
 // ====================
 // RENDER OPTIMIZATIONS & DOMAIN SECURITY
