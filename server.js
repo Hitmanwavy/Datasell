@@ -5,10 +5,10 @@ const admin = require('firebase-admin');
 const axios = require('axios');
 const session = require('express-session');
 const bcrypt = require('bcryptjs');
-const rateLimit = require('express-rate-limit');
-const helmet = require('helmet');
-const cors = require('cors');
-
+app.use(helmet({...}));
+app.use(cors({...}));
+app.use(generalLimiter);
+// and all the rate limiters
 const app = express();
 const PORT = process.env.PORT || 3000;
 
